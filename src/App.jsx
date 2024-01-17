@@ -4,9 +4,13 @@ import "./global.css";
 import s from "./style.module.css";
 import { BACKDROP_BASE_URL } from "./config";
 import { TVShowDetail } from "./components/TVShowDetail/TVShowDetail";
+import { TVShowListItem } from "./components/TVShowListItem/TVShowListItem";
+import { TVShowList } from "./components/TVShowList/TVShowList";
+import { SearchBar } from "./components/SearchBar/SearchBar";
 
 export function App() {
   const [currentTVShow, setCurrentTVShow] = useState();
+  const [recommendationList, setRecommendationList] = useState([]);
 
   async function fetchPopulars() {
     const populars = await TVShowAPI.fetchPopulars();
@@ -14,11 +18,28 @@ export function App() {
       setCurrentTVShow(populars[0]);
     }
   }
+
+  async function fetchRecommendations(tvShowId) {
+    const recommendations = await TVShowAPI.fetchRecommendations(tvShowId);
+    if (recommendations.length > 0) {
+      setRecommendationList(recommendations.slice(0.1));
+    }
+  }
+
   useEffect(() => {
     fetchPopulars();
   }, []);
 
-  console.log(currentTVShow);
+  useEffect(() => {
+    if (currentTVShow) {
+      fetchRecommendations(currentTVShow.id);
+    }
+  }, [currentTVShow]);
+
+  function setCurrentTVShowFromRecommendation(tvShow) {
+    alert(JSON.stringify(tvShow));
+  }
+
   return (
     <div
       className={s.main_container}
@@ -35,14 +56,21 @@ export function App() {
             <div>Subtitle</div>
           </div>
           <div className="col-md-12 col-lg-4">
-            <input style={{ width: "100%" }} type="text" />
+            <SearchBar />
           </div>
         </div>
       </div>
       <div className={s.tv_show_detail}>
         {currentTVShow && <TVShowDetail tvShow={currentTVShow} />}
       </div>
-      <div className={s.recommendations}>recommendations</div>
+      <div className={s.recommended_shows}>
+        {recommendationList && recommendationList.length > 0 && (
+          <TVShowList
+            onClickItem={setCurrentTVShow}
+            tvShowList={recommendationList}
+          />
+        )}
+      </div>
     </div>
   );
 }
