@@ -36,6 +36,13 @@ export function App() {
     }
   }, [currentTVShow]);
 
+  async function searchTVShow(tvShowName) {
+    const searchResponse = await TVShowAPI.fetchByTitle(tvShowName);
+    if (searchResponse.length > 0) {
+      setCurrentTVShow(searchResponse[0]);
+    }
+  }
+
   function setCurrentTVShowFromRecommendation(tvShow) {
     alert(JSON.stringify(tvShow));
   }
@@ -51,12 +58,9 @@ export function App() {
     >
       <div className={s.header}>
         <div className="row">
-          <div className="col-4">
-            <div>Logo</div>
-            <div>Subtitle</div>
-          </div>
+          <div className="col-4"></div>
           <div className="col-md-12 col-lg-4">
-            <SearchBar />
+            <SearchBar onSubmit={searchTVShow} />
           </div>
         </div>
       </div>
